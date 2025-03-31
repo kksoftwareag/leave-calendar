@@ -4,4 +4,4 @@ Leave Calendar
 
 #### License
 
-gpl-3.0
+GPLv3

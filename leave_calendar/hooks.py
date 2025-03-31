@@ -3,7 +3,7 @@ app_title = "Leave Calendar"
 app_publisher = "K&K Software AG"
 app_description = "Leave Calendar"
 app_email = "erp@kk-software.de"
-app_license = "gpl-3.0"
+app_license = "GPLv3"
 
 # Apps
 # ------------------
