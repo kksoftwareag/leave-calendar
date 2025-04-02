@@ -49,6 +49,8 @@ The Leave Calendar automatically considers the **Holiday List** assigned to each
 
 The Leave Calendar is available in both **Dark Mode** and **Light Mode**, allowing users to choose their preferred display setting.
 
+![Light Mode Leave Calendar](light_mode_leave_calendar.png)
+
 ### License and Company
 
 This project is licensed under **GPLv3** and published from K&K Software AG.
