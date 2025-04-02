@@ -1,0 +1,451 @@
+html {
+    scroll-behavior: smooth !important;
+  }
+  
+.portal-header {
+display: flex;
+align-items: center;
+justify-content: flex-start;
+padding: 10px;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+z-index: 1000;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.portal-header .logo {
+height: 30px;
+width: auto;
+margin-left: 20px;
+}
+
+body {
+overflow-x: hidden;
+overflow-y: hidden;
+background-color: #ffffff;
+color: #000000;
+}
+
+.login-prompt {
+font-family: Arial;
+}
+
+.container {
+margin-top: 30px;
+width: 100%;
+padding: 40px;
+font-size: 14px;
+font-weight: bold;
+color: #636e73;
+font-family: Arial;
+}
+
+.table-wrapper {
+position: relative;
+white-space: nowrap;
+overflow: auto;
+height: calc(100vh - 200px);
+}
+
+@media (max-width: 768px) {
+.table-wrapper {
+    height: calc(100vh - 150px);
+}
+}
+
+@media (max-width: 480px) {
+.table-wrapper {
+    height: calc(100vh - 100px);
+}
+}
+
+.sticky-col {
+position: -webkit-sticky;
+position: sticky;
+background-color: white;
+}
+
+.first-col {
+width: 200px;
+min-width: 200px;
+max-width: 200px;
+left: 0;
+}
+
+.sticky-header th {
+position: -webkit-sticky;
+position: sticky;
+top: 0;
+background-color: white;
+z-index: 1;
+}
+
+.sticky-first-cell {
+position: -webkit-sticky !important;
+position: sticky !important;
+left: 0 !important;
+background-color: white;
+z-index: 3 !important;
+}
+
+.vacation-day-field {
+text-align: center;
+color: white;
+padding: 4px;
+min-width: 30px;
+min-height: 30px;
+border-radius: 5px;
+}
+
+.default {
+background-color: #e0e0e0;
+}
+
+.saturday,
+.sunday {
+background-color: #e0e0e0;
+}
+
+.vacation {
+background-color: #cfab34;
+}
+
+.half-day-vacation {
+background: linear-gradient(to bottom, #cfab34 50%, #ffffff 50%);
+}
+
+.sick-leave {
+background-color: #6b4a70;
+}
+
+.absence {
+background-color: #ca3f3f;
+}
+
+.half-day-absence {
+background: linear-gradient(to bottom, #ca3f3f 50%, #ffffff 50%);
+}
+
+.trade-school {
+background-color: #009688;
+}
+
+.official-holiday {
+background-color: #78ca79;
+}
+
+.today {
+background-color: #78ca79 !important;
+}
+
+.text-center {
+text-align: center;
+}
+
+.table th,
+.table td {
+padding: 0.3rem;
+}
+
+.table th {
+background-color: #f1f1f1;
+}
+
+.table td {
+vertical-align: middle;
+}
+
+.table-is-loading {
+opacity: 0.3;
+}
+
+.loading-animation-div {
+width: 100%;
+height: 100%;
+display: flex;
+position: absolute;
+align-items: center;
+justify-content: center;
+}
+
+.test {
+position: absolute;
+z-index: 100;
+background: black;
+color: white;
+}
+
+.sticky {
+position: -webkit-sticky;
+position: sticky;
+background-color: white;
+}
+
+.legend {
+display: flex;
+margin-bottom: 20px;
+font-size: 14px;
+color: #636e73;
+}
+
+.legend-item {
+display: flex;
+align-items: center;
+margin-right: 15px;
+}
+
+.legend .vacation-day-field {
+width: 30px;
+height: 30px;
+display: flex;
+justify-content: center;
+align-items: center;
+color: white;
+margin-right: 5px;
+font-weight: bold;
+font-size: 16px;
+border-radius: 5px;
+}
+
+.filter-container {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 20px;
+font-size: 14px;
+color: #636e73;
+font-family: Arial, sans-serif;
+}
+
+.year-filter {
+display: flex;
+align-items: center;
+font-size: 14px;
+}
+
+.year-button {
+padding: 8px 12px;
+margin: 0 5px;
+font-size: 14px;
+color: #424242;
+background-color: #ffffff;
+border: 1px solid #ddd;
+border-radius: 5px;
+outline: none;
+cursor: pointer;
+transition: all 0.3s ease;
+}
+
+.year-button:hover {
+background-color: #f9f9f9;
+border-color: #aaa;
+}
+
+.year-button:focus {
+background-color: #ffffff;
+border-color: #78ca79;
+box-shadow: 0 0 8px #78ca79;
+color: #333;
+}
+
+.current-year-display {
+font-size: 14px;
+font-weight: bold;
+color: #424242;
+}
+
+.filter {
+display: flex;
+align-items: center;
+}
+
+.filter label {
+margin-right: 10px;
+font-weight: bold;
+color: #424242;
+}
+
+.filter select {
+padding: 8px 12px;
+font-size: 14px;
+color: #424242;
+background-color: #ffffff;
+border: 1px solid #ddd;
+border-radius: 5px;
+outline: none;
+transition: all 0.3s ease;
+box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.filter select:hover {
+background-color: #f9f9f9;
+border-color: #aaa;
+}
+
+.filter select:focus {
+background-color: #ffffff;
+border-color: #78ca79;
+box-shadow: 0 0 8px #78ca79;
+color: #333;
+}
+
+.filter select option {
+background-color: #ffffff;
+color: #424242;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+background-color: #333333;
+color: #ffffff;
+}
+
+body.dark-mode .filter {
+color: #ffffff;
+}
+
+body.dark-mode .filter label {
+color: #ffffff;
+}
+
+body.dark-mode .filter select {
+background-color: #444444;
+color: #ffffff;
+border: 1px solid #555555;
+box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .filter select:hover {
+background-color: #555555;
+border-color: #78ca79;
+}
+
+body.dark-mode .filter select:focus {
+background-color: #555555;
+border-color: #78ca79;
+box-shadow: 0 0 8px #78ca79;
+}
+
+body.dark-mode .filter select option {
+background-color: #333333;
+color: #ffffff;
+}
+
+.portal-header.dark-mode {
+background-color: #333333;
+color: #ffffff;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.portal-header .logo {
+opacity: 0.8;
+}
+
+.portal-header a {
+color: #ffffff;
+}
+
+.portal-header a:hover .logo {
+opacity: 1;
+}
+
+.theme-toggle {
+position: fixed;
+top: 15px;
+right: 20px;
+background-color: #78ca79;
+color: white;
+border: none;
+padding: 5px 10px;
+font-size: 14px;
+border-radius: 5px;
+cursor: pointer;
+transition: all 0.3s ease;
+z-index: 1000;
+}
+
+.theme-toggle:hover {
+background-color: #66c466;
+}
+
+.theme-toggle:focus {
+outline: none;
+box-shadow: 0 0 8px #78ca79;
+}
+
+body.dark-mode .theme-toggle {
+background-color: #444444;
+color: #78ca79;
+}
+
+body.dark-mode .theme-toggle:hover {
+background-color: #555555;
+}
+body.dark-mode .legend {
+color: #ffffff;
+}
+
+body.dark-mode .legend-item {
+color: #ffffff;
+}
+
+body.dark-mode .filter-container,
+body.dark-mode .year-filter,
+body.dark-mode .current-year-display {
+color: #ffffff;
+}
+
+body.dark-mode .year-button {
+background-color: #444444;
+color: #ffffff;
+border: 1px solid #ffffff;
+}
+
+body.dark-mode .year-button:hover {
+background-color: #555555;
+border-color: #78ca79;
+color: #ffffff;
+}
+
+body.dark-mode .year-button:focus {
+background-color: #555555;
+border-color: #78ca79;
+box-shadow: 0 0 8px #78ca79;
+}
+
+body.dark-mode .table th {
+background-color: #444444;
+color: #ffffff;
+border-bottom: 1px solid #555555;
+}
+
+body.dark-mode .table td:first-child,
+body.dark-mode .table th:first-child {
+background-color: #444444;
+color: #ffffff;
+border-right: 1px solid #555555;
+}
+
+body.dark-mode .table th,
+body.dark-mode .table td {
+color: #ffffff;
+}
+
+body.dark-mode .default {
+background-color: #636363;
+}
+
+body.dark-mode .saturday,
+body.dark-mode .sunday {
+background-color: #636363;
+}
+
+body.dark-mode .half-day-vacation {
+background: linear-gradient(to bottom, #cfab34 50%, #636363 50%);
+}
+
+body.dark-mode .half-day-absence {
+background: linear-gradient(to bottom, #ca3f3f 50%, #636363 50%);
+}

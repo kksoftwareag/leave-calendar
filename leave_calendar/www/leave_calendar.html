@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _("Leave Calendar") }} {{ year }}</title>
+    <link rel="stylesheet" href="leave_calendar.css">
+</head>
+<body>
+    {% if logged_in %}
+    <div class="portal-header">
+        <a href="/app">
+            <img src="frappe-framework-logo.svg" alt="Logo" class="logo">
+        </a>
+        <button id="theme-toggle" class="theme-toggle">Dark Mode 🌙</button>
+    </div>
+    <div class="container">
+        <div class="view">
+            <div class="legend">
+                <div class="legend-item">
+                    <span class="vacation-day-field default"></span>= {{ _("No Entry") }}
+                </div>
+                <div class="legend-item">
+                    <span class="vacation-day-field vacation">L</span>= {{ _("Leave Day") }}
+                </div>
+                <div class="legend-item">
+                    <span class="vacation-day-field sick-leave">S</span>= {{ _("Sick Leave")}}
+                </div>
+                <div class="legend-item">
+                    <span class="vacation-day-field absence">A</span>= {{ _("Absent") }}
+                </div>
+                <!-- <div class="legend-item">
+                    <span class="vacation-day-field trade-school">T</span>= {{ _("Trade School") }}
+                </div> -->
+                <div class="legend-item">
+                    <span class="vacation-day-field saturday">S</span>= {{ _("Saturday/Sunday")}}
+                </div>
+                <div class="legend-item">
+                    <span class="vacation-day-field official-holiday">H</span>= {{ _("Holiday") }}
+                </div>
+
+            </div>
+            <div class="filter-container">
+                <div class="current-year">
+                    <span>{{ _("Year") }} {{ year }}</span>
+                </div>
+                <div class="filter">
+                    <label for="departmentFilter">{{ _("Filter by Department: ") }}</label>
+                    <select id="departmentFilter" onchange="updateDepartmentFilter()">
+                        <option value="all" {% if selected_department == 'all' %}selected{% endif %}>{{ _("All Departments") }}</option>
+                        {% for department in departments %}
+                            <option value="{{ department.name }}" {% if selected_department == department.name %}selected{% endif %}>{{ department.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="year-filter">
+                    <button class="year-button" id="prevYear" onclick="changeYear(-1)">&#60;&#60;</button>
+                    <span class="current-year-display">{{ year }}</span>
+                    <button class="year-button" id="nextYear" onclick="changeYear(1)">&#62;&#62;</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr class="sticky-header">
+                            <th scope="col" class="sticky-first-cell text-left">Name</th>
+                            <th scope="col">{{ _("Total Allocated Leaves") }}</th>
+                            <th scope="col">{{ _("Used Leaves") }}</th>
+                            <th scope="col">{{ _("New") }} {{ year }}</th>
+                            <th scope="col">{{ _("Rest") }} {{ year - 1 }}</th>
+                            {% for header in day_headers %}
+                                {% if current_date == header %}
+                                    <th scope="col" class="today" id="today">{{ header }}</th>
+                                {% else %}
+                                    <th scope="col">{{ header }}</th>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in employee_data %}
+                            <tr>
+                                <td class="sticky first-col">{{ employee.employee_name }}</td>
+                                <td class="text-center">{{ employee.total_leaves_allocated }}</td>
+                                <td class="text-center">{{ employee.used_leaves }}</td>
+                                <td class="text-center">{{ employee.new_leaves_allocated }}</td>
+                                <td class="text-center">{{ employee.unused_leaves }}</td>
+                                {% for day in employee.days %}
+                                    {% if day.type.name == "DEFAULT" %}
+                                        <td><div class="vacation-day-field default"></div></td>
+                                    {% elif day.type.name == "SATURDAY" %}
+                                        <td><div class="vacation-day-field saturday">S</div></td>
+                                    {% elif day.type.name == "SUNDAY" %}
+                                        <td><div class="vacation-day-field sunday">S</div></td>
+                                    {% elif day.type.name == "VACATION" %}
+                                        <td><div class="vacation-day-field vacation">U</div></td>
+                                    {% elif day.type.name == "HALF_DAY_VACATION" %}
+                                        <td><div class="vacation-day-field half-day-vacation">U</div></td>
+                                    {% elif day.type.name == "SICK_LEAVE" %}
+                                        <td><div class="vacation-day-field sick-leave">K</div></td>
+                                    {% elif day.type.name == "ABSENCE" %}
+                                        <td><div class="vacation-day-field absence">A</div></td>
+                                    {% elif day.type.name == "HALF_DAY_ABSENCE" %}
+                                        <td><div class="vacation-day-field half-day-absence">A</div></td>
+                                    {% elif day.type.name == "TRADE_SCHOOL" %}
+                                        <td><div class="vacation-day-field trade-school">B</div></td>
+                                    {% elif day.type.name == "OFFICIAL_HOLIDAY" %}
+                                        <td><div class="vacation-day-field official-holiday">F</div></td>
+                                    {% else %}
+                                        <td><div class="vacation-day-field default"></div></td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+        <div class="login-prompt">
+            <p>{{ _("Please log in to access the vacation calendar.") }}</p>
+            <a href="/login" class="login-button">{{ _("To the login page") }}</a>
+        </div>
+    {% endif %}
+    <script>
+
+        var loggedIn = {{ logged_in|tojson }};
+
+        if (!loggedIn) {
+            window.location.href = '/login';
+        }
+    </script>
+    <script src="leave_calendar.js"></script>
+</body>
+</html>
