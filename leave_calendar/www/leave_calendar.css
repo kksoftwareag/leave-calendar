@@ -108,11 +108,11 @@ background-color: #e0e0e0;
 background-color: #e0e0e0;
 }
 
-.vacation {
+.casual-leave {
 background-color: #cfab34;
 }
 
-.half-day-vacation {
+.half-day-casual-leave {
 background: linear-gradient(to bottom, #cfab34 50%, #ffffff 50%);
 }
 
@@ -339,16 +339,8 @@ color: #ffffff;
 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-.portal-header .logo {
-opacity: 0.8;
-}
-
 .portal-header a {
 color: #ffffff;
-}
-
-.portal-header a:hover .logo {
-opacity: 1;
 }
 
 .theme-toggle {
@@ -442,7 +434,7 @@ body.dark-mode .sunday {
 background-color: #636363;
 }
 
-body.dark-mode .half-day-vacation {
+body.dark-mode .half-day-casual-leave {
 background: linear-gradient(to bottom, #cfab34 50%, #636363 50%);
 }
 

@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ _("Leave Calendar") }} {{ year }}</title>
     <link rel="stylesheet" href="leave_calendar.css">
+    <link rel="icon" href="{{ favicon }}">
 </head>
 <body>
     {% if logged_in %}
     <div class="portal-header">
         <a href="/app">
-            <img src="frappe-framework-logo.svg" alt="Logo" class="logo">
+            <img src="{{ logo }}" alt="Logo" class="logo">
         </a>
         <button id="theme-toggle" class="theme-toggle">Dark Mode 🌙</button>
     </div>
@@ -21,7 +22,7 @@
                     <span class="vacation-day-field default"></span>= {{ _("No Entry") }}
                 </div>
                 <div class="legend-item">
-                    <span class="vacation-day-field vacation">L</span>= {{ _("Leave Day") }}
+                    <span class="vacation-day-field casual-leave">L</span>= {{ _("Leave Day") }}
                 </div>
                 <div class="legend-item">
                     <span class="vacation-day-field sick-leave">S</span>= {{ _("Sick Leave")}}
@@ -92,10 +93,10 @@
                                         <td><div class="vacation-day-field saturday">S</div></td>
                                     {% elif day.type.name == "SUNDAY" %}
                                         <td><div class="vacation-day-field sunday">S</div></td>
-                                    {% elif day.type.name == "VACATION" %}
-                                        <td><div class="vacation-day-field vacation">U</div></td>
-                                    {% elif day.type.name == "HALF_DAY_VACATION" %}
-                                        <td><div class="vacation-day-field half-day-vacation">U</div></td>
+                                    {% elif day.type.name == "CASUAL LEAVE" %}
+                                        <td><div class="vacation-day-field casual-leave">U</div></td>
+                                    {% elif day.type.name == "HALF_DAY_CASUAL_LEAVE" %}
+                                        <td><div class="vacation-day-field half-day-casual-leave">U</div></td>
                                     {% elif day.type.name == "SICK_LEAVE" %}
                                         <td><div class="vacation-day-field sick-leave">K</div></td>
                                     {% elif day.type.name == "ABSENCE" %}
@@ -119,7 +120,7 @@
     </div>
     {% else %}
         <div class="login-prompt">
-            <p>{{ _("Please log in to access the vacation calendar.") }}</p>
+            <p>{{ _("Please log in to access the leave calendar.") }}</p>
             <a href="/login" class="login-button">{{ _("To the login page") }}</a>
         </div>
     {% endif %}

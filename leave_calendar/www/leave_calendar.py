@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta
 from enum import Enum
 
 import frappe
+from frappe.core.doctype.navbar_settings.navbar_settings import get_app_logo
 
 
 class AttendenceCalendarDayType(Enum):
@@ -9,11 +10,11 @@ class AttendenceCalendarDayType(Enum):
     SUNDAY = "Sunday"
     OFFICIAL_HOLIDAY = "Official Holiday"
     DEFAULT = "default"
-    VACATION = "vacation"
+    CASUAL_LEAVE = "casual_leave"
     SICK_LEAVE = "sick_leave"
     TRADE_SCHOOL = "trade_school"
     ABSENCE = "absence"
-    HALF_DAY_VACATION = "half_day_vacation"
+    HALF_DAY_CASUAL_LEAVE = "half_day_casual_leave"
     HALF_DAY_SICK_LEAVE = "half_day_sick_leave"
     HALF_DAY_TRADE_SCHOOL = "half_day_trade_school"
     HALF_DAY_ABSENCE = "half_day_absence"
@@ -88,9 +89,9 @@ def map_leave_type(leave_type, half_day):
     leave_type = leave_type.upper()
     if leave_type == "CASUAL LEAVE":
         return (
-            AttendenceCalendarDayType.VACATION
+            AttendenceCalendarDayType.CASUAL_LEAVE
             if not half_day
-            else AttendenceCalendarDayType.HALF_DAY_VACATION
+            else AttendenceCalendarDayType.HALF_DAY_CASUAL_LEAVE
         )
     elif leave_type == "SICK LEAVE":
         return (
@@ -280,9 +281,9 @@ def map_single_employee_data(
             leave_type = leave_applications[day_str]["type"]
             half_day = leave_applications[day_str]["half_day"]
             day_type = map_leave_type(leave_type, half_day)
-            if day_type == AttendenceCalendarDayType.VACATION:
+            if day_type == AttendenceCalendarDayType.CASUAL_LEAVE:
                 used_days += 1
-            elif day_type == AttendenceCalendarDayType.HALF_DAY_VACATION:
+            elif day_type == AttendenceCalendarDayType.HALF_DAY_CASUAL_LEAVE:
                 used_days += 0.5
 
             if not can_see_leave_data:
@@ -324,9 +325,9 @@ def get_departments():
 
 
 def map_restricted_leave(result_type):
-    if result_type == AttendenceCalendarDayType.VACATION:
+    if result_type == AttendenceCalendarDayType.CASUAL_LEAVE:
         return AttendenceCalendarDayType.ABSENCE
-    elif result_type == AttendenceCalendarDayType.HALF_DAY_VACATION:
+    elif result_type == AttendenceCalendarDayType.HALF_DAY_CASUAL_LEAVE:
         return AttendenceCalendarDayType.HALF_DAY_ABSENCE
     elif result_type == AttendenceCalendarDayType.SICK_LEAVE:
         return AttendenceCalendarDayType.ABSENCE
@@ -357,6 +358,7 @@ def get_current_employee(user):
 
 
 def get_context(context):
+    	
     context.no_cache = 1
     context.logged_in = check_if_logged_in()
     is_admin = False
@@ -368,7 +370,6 @@ def get_context(context):
         is_department_leave_approver = False
 
     context.departments = get_departments()
-
     current_year = datetime.now().year
     year = int(frappe.local.request.args.get("year", current_year))
     context.year = year
@@ -392,5 +393,7 @@ def get_context(context):
         selected_department=selected_department,
         current_employee=current_employee,
     )
-
+    context.logo = frappe.utils.get_url() + get_app_logo()
+    context.favicon = frappe.utils.get_url() + "/assets/erpnext/images/erpnext-logo.svg"
+    
     return context
