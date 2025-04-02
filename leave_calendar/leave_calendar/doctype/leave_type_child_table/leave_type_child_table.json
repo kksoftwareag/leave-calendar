@@ -1,0 +1,58 @@
+{
+ "actions": [],
+ "creation": "2025-04-02 13:47:37.921598",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "leave_type",
+  "color",
+  "abbreviation",
+  "is_main_leave_type"
+ ],
+ "fields": [
+  {
+   "fieldname": "leave_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Leave Type",
+   "options": "Leave Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Color",
+   "in_list_view": 1,
+   "label": "Color",
+   "reqd": 1
+  },
+  {
+   "fieldname": "abbreviation",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Abbreviation",
+   "length": 3,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_main_leave_type",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Main Leave Type"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-04-02 14:44:22.861414",
+ "modified_by": "Administrator",
+ "module": "Leave Calendar",
+ "name": "Leave Type Child Table",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -18,28 +18,23 @@
     <div class="container">
         <div class="view">
             <div class="legend">
-                <div class="legend-item">
-                    <span class="vacation-day-field default"></span>= {{ _("No Entry") }}
-                </div>
-                <div class="legend-item">
-                    <span class="vacation-day-field casual-leave">L</span>= {{ _("Leave Day") }}
-                </div>
-                <div class="legend-item">
-                    <span class="vacation-day-field sick-leave">S</span>= {{ _("Sick Leave")}}
-                </div>
-                <div class="legend-item">
-                    <span class="vacation-day-field absence">A</span>= {{ _("Absent") }}
-                </div>
-                <!-- <div class="legend-item">
-                    <span class="vacation-day-field trade-school">T</span>= {{ _("Trade School") }}
-                </div> -->
-                <div class="legend-item">
-                    <span class="vacation-day-field saturday">S</span>= {{ _("Saturday/Sunday")}}
-                </div>
-                <div class="legend-item">
-                    <span class="vacation-day-field official-holiday">H</span>= {{ _("Holiday") }}
-                </div>
-
+                    <div class="legend-item">
+                        <span class="vacation-day-field default"></span>= {{ _("No Entry") }}
+                    </div>
+                    <div class="legend-item">
+                        <span class="vacation-day-field default">S</span>= {{ _("Saturday/Sunday") }}
+                    </div>
+                    <div class="legend-item">
+                        <span class="vacation-day-field holiday">H</span>= {{ _("Official Holiday") }}
+                    </div>
+                    <div class="legend-item">
+                        <span class="vacation-day-field absence">A</span>= {{ _("Absent") }}
+                    </div>
+                {% for leave_type in leave_types %}
+                    <div class="legend-item">
+                        <span class="vacation-day-field" style="background-color: {{ leave_type.color }};">{{ leave_type.abbreviation }}</span> = {{ leave_type.leave_type }}
+                    </div>
+                {% endfor %}
             </div>
             <div class="filter-container">
                 <div class="current-year">
@@ -65,8 +60,9 @@
                     <thead>
                         <tr class="sticky-header">
                             <th scope="col" class="sticky-first-cell text-left">Name</th>
-                            <th scope="col">{{ _("Total Allocated Leaves") }}</th>
+                            <th scope="col">{{ _("Total Leaves") }}</th>
                             <th scope="col">{{ _("Used Leaves") }}</th>
+                            <th scope="col">{{ _("Remaining Leaves") }}</th>
                             <th scope="col">{{ _("New") }} {{ year }}</th>
                             <th scope="col">{{ _("Rest") }} {{ year - 1 }}</th>
                             {% for header in day_headers %}
@@ -84,32 +80,23 @@
                                 <td class="sticky first-col">{{ employee.employee_name }}</td>
                                 <td class="text-center">{{ employee.total_leaves_allocated }}</td>
                                 <td class="text-center">{{ employee.used_leaves }}</td>
+                                <td class="text-center">{{ employee.remaining_leaves }}</td>
                                 <td class="text-center">{{ employee.new_leaves_allocated }}</td>
                                 <td class="text-center">{{ employee.unused_leaves }}</td>
                                 {% for day in employee.days %}
-                                    {% if day.type.name == "DEFAULT" %}
-                                        <td><div class="vacation-day-field default"></div></td>
-                                    {% elif day.type.name == "SATURDAY" %}
-                                        <td><div class="vacation-day-field saturday">S</div></td>
-                                    {% elif day.type.name == "SUNDAY" %}
-                                        <td><div class="vacation-day-field sunday">S</div></td>
-                                    {% elif day.type.name == "CASUAL LEAVE" %}
-                                        <td><div class="vacation-day-field casual-leave">U</div></td>
-                                    {% elif day.type.name == "HALF_DAY_CASUAL_LEAVE" %}
-                                        <td><div class="vacation-day-field half-day-casual-leave">U</div></td>
-                                    {% elif day.type.name == "SICK_LEAVE" %}
-                                        <td><div class="vacation-day-field sick-leave">K</div></td>
-                                    {% elif day.type.name == "ABSENCE" %}
-                                        <td><div class="vacation-day-field absence">A</div></td>
-                                    {% elif day.type.name == "HALF_DAY_ABSENCE" %}
-                                        <td><div class="vacation-day-field half-day-absence">A</div></td>
-                                    {% elif day.type.name == "TRADE_SCHOOL" %}
-                                        <td><div class="vacation-day-field trade-school">B</div></td>
-                                    {% elif day.type.name == "OFFICIAL_HOLIDAY" %}
-                                        <td><div class="vacation-day-field official-holiday">F</div></td>
+                                    {% if day.type.half_day == 1 %}
+                                        {% set background_css = "background: linear-gradient(to bottom, " ~ day.type.color ~ " 50%, #ffffff 50%)" %}
                                     {% else %}
-                                        <td><div class="vacation-day-field default"></div></td>
+                                        {% set background_css = "background-color: " ~ day.type.color %}
                                     {% endif %}
+                                
+                                    <td>
+                                        {% if day.type.name in ["DEFAULT", "SATURDAY", "SUNDAY"] %}
+                                            <div class="vacation-day-field default">{{ day.type.abbreviation }}</div>
+                                        {% else %}
+                                            <div class="vacation-day-field" style="{{ background_css }}">{{ day.type.abbreviation }}</div>
+                                        {% endif %}
+                                    </td>
                                 {% endfor %}
                             </tr>
                         {% endfor %}

@@ -103,38 +103,17 @@ border-radius: 5px;
 background-color: #e0e0e0;
 }
 
-.saturday,
-.sunday {
-background-color: #e0e0e0;
-}
-
-.casual-leave {
-background-color: #cfab34;
-}
-
-.half-day-casual-leave {
-background: linear-gradient(to bottom, #cfab34 50%, #ffffff 50%);
-}
-
-.sick-leave {
-background-color: #6b4a70;
-}
-
 .absence {
-background-color: #ca3f3f;
+    background-color: #ca3f3f;
 }
 
 .half-day-absence {
-background: linear-gradient(to bottom, #ca3f3f 50%, #ffffff 50%);
+    background: linear-gradient(to bottom, #ca3f3f 50%, #ffffff 50%);
 }
 
-.trade-school {
-background-color: #009688;
-}
-
-.official-holiday {
-background-color: #78ca79;
-}
+.holiday {
+    background-color: #78ca79;
+} 
 
 .today {
 background-color: #78ca79 !important;
@@ -427,15 +406,6 @@ color: #ffffff;
 
 body.dark-mode .default {
 background-color: #636363;
-}
-
-body.dark-mode .saturday,
-body.dark-mode .sunday {
-background-color: #636363;
-}
-
-body.dark-mode .half-day-casual-leave {
-background: linear-gradient(to bottom, #cfab34 50%, #636363 50%);
 }
 
 body.dark-mode .half-day-absence {

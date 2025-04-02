@@ -5,21 +5,15 @@ import frappe
 from frappe.core.doctype.navbar_settings.navbar_settings import get_app_logo
 
 
-class AttendenceCalendarDayType(Enum):
-    SATURDAY = "Saturday"
-    SUNDAY = "Sunday"
-    OFFICIAL_HOLIDAY = "Official Holiday"
-    DEFAULT = "default"
-    CASUAL_LEAVE = "casual_leave"
-    SICK_LEAVE = "sick_leave"
-    TRADE_SCHOOL = "trade_school"
-    ABSENCE = "absence"
-    HALF_DAY_CASUAL_LEAVE = "half_day_casual_leave"
-    HALF_DAY_SICK_LEAVE = "half_day_sick_leave"
-    HALF_DAY_TRADE_SCHOOL = "half_day_trade_school"
-    HALF_DAY_ABSENCE = "half_day_absence"
+class LeaveType:
+    def __init__(self, name, color, abbreviation, is_main_leave_type, half_day):
+        self.name = name
+        self.color = color
+        self.abbreviation = abbreviation
+        self.is_main_leave_type = is_main_leave_type
+        self.half_day = half_day
 
-
+    
 def get_days_for_year(year):
     start_date = datetime(year, 1, 1)
     end_date = datetime(year, 12, 31)
@@ -61,56 +55,21 @@ def get_holidays_list(year):
     return result
 
 
-def get_type_of_day_for_holiday(description: str) -> AttendenceCalendarDayType:
+def get_type_of_day_for_holiday(description: str):
     description = description.upper()
     if description in ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]:
-        return AttendenceCalendarDayType.ABSENCE
+        return "ABSENCE"
     elif description == "SATURDAY":
-        return AttendenceCalendarDayType.SATURDAY
+        return "SATURDAY"
     elif description == "SUNDAY":
-        return AttendenceCalendarDayType.SUNDAY
+        return "SUNDAY"
     else:
-        return AttendenceCalendarDayType.OFFICIAL_HOLIDAY
+        return "OFFICIAL HOLIDAY"
 
 
 def get_days_between(start_date, end_date):
     delta = end_date - start_date
     return [start_date + timedelta(days=i) for i in range(delta.days + 1)]
-
-
-def map_leave_type(leave_type, half_day):
-    if not leave_type:
-        return (
-            AttendenceCalendarDayType.ABSENCE
-            if not half_day
-            else AttendenceCalendarDayType.HALF_DAY_ABSENCE
-        )
-
-    leave_type = leave_type.upper()
-    if leave_type == "CASUAL LEAVE":
-        return (
-            AttendenceCalendarDayType.CASUAL_LEAVE
-            if not half_day
-            else AttendenceCalendarDayType.HALF_DAY_CASUAL_LEAVE
-        )
-    elif leave_type == "SICK LEAVE":
-        return (
-            AttendenceCalendarDayType.SICK_LEAVE
-            if not half_day
-            else AttendenceCalendarDayType.HALF_DAY_SICK_LEAVE
-        )
-    elif leave_type == "TRADE SCHOOL":
-        return (
-            AttendenceCalendarDayType.TRADE_SCHOOL
-            if not half_day
-            else AttendenceCalendarDayType.HALF_DAY_TRADE_SCHOOL
-        )
-    else:
-        return (
-            AttendenceCalendarDayType.ABSENCE
-            if not half_day
-            else AttendenceCalendarDayType.HALF_DAY_ABSENCE
-        )
 
 
 def get_employees():
@@ -164,7 +123,7 @@ def get_leave_applications(year):
 
 
 def map_employee_data(
-    days, holidays, year, is_admin, is_department_leave_approver, selected_department, current_employee
+    days, holidays, year, is_admin, selected_department, current_employee
 ):
     employee_data = []
     unsorted_employees = get_employees()
@@ -183,6 +142,8 @@ def map_employee_data(
     leave_allocations = get_leave_allocations(year)
     leave_applications = get_leave_applications(year)
 
+    current_user = frappe.session.user 
+    
     for employee in employees:
         employee_leave_allocation = next(
             (
@@ -227,11 +188,12 @@ def map_employee_data(
                 employee=employee,
                 leave_allocation=employee_leave_allocation,
                 leave_applications=employee_leave_application_array,
+                selected_department=selected_department,
                 days=days,
                 holidays=holidays,
                 is_admin=is_admin,
-                is_department_leave_approver=is_department_leave_approver,
                 current_employee=current_employee,
+                current_user=current_user,
                 )
         )
 
@@ -242,11 +204,12 @@ def map_single_employee_data(
     employee,
     leave_allocation,
     leave_applications,
+    selected_department,
     days,
     holidays,
     is_admin,
-    is_department_leave_approver,
     current_employee,
+    current_user,
 ):
     employee_data = {}
     employee_days = []
@@ -254,40 +217,38 @@ def map_single_employee_data(
 
     employee_data["employee_name"] = employee.employee_name
 
-    is_department_leave_approver_accessible = (
-        current_employee and
-        (employee.name == current_employee.name
-        or employee.department == current_employee.department)
-    )
+    is_department_leave_approver = check_if_department_leave_approver(selected_department, employee, current_user)
 
     can_see_leave_data = (
         is_admin
-        or (is_department_leave_approver and is_department_leave_approver_accessible)
+        or (is_department_leave_approver)
         or (current_employee and employee.name == current_employee.name)
     )
 
-
     employee_holiday_list = employee.holiday_list
+    leave_types = get_leave_types()
     for day in days:
-        day_type = AttendenceCalendarDayType.DEFAULT
         day_str = day.strftime("%Y-%m-%d")
-        if (
-            employee_holiday_list in holidays
-            and day_str in holidays[employee_holiday_list]
-        ):
-            day_type = holidays[employee_holiday_list][day_str]
+        
+        day_type = LeaveType(
+            name="DEFAULT",
+            color="#636363",
+            abbreviation="",
+            is_main_leave_type=0,
+            half_day=0
+        )
 
+        if employee_holiday_list in holidays and day_str in holidays[employee_holiday_list]:
+            day_type = map_leave_type(leave_type=holidays[employee_holiday_list][day_str], half_day=0, leave_types=leave_types, can_see_leave_data=1)
+        
         elif day_str in leave_applications:
             leave_type = leave_applications[day_str]["type"]
             half_day = leave_applications[day_str]["half_day"]
-            day_type = map_leave_type(leave_type, half_day)
-            if day_type == AttendenceCalendarDayType.CASUAL_LEAVE:
-                used_days += 1
-            elif day_type == AttendenceCalendarDayType.HALF_DAY_CASUAL_LEAVE:
-                used_days += 0.5
+            day_type = map_leave_type(leave_type=leave_type, half_day=half_day, leave_types=leave_types, can_see_leave_data=can_see_leave_data)
+            
+            if day_type.is_main_leave_type:
+                used_days += 0.5 if day_type.half_day else 1
 
-            if not can_see_leave_data:
-                day_type = map_restricted_leave(day_type)
 
         employee_days.append({"type": day_type})
     employee_data["days"] = employee_days
@@ -301,9 +262,47 @@ def map_single_employee_data(
     employee_data["unused_leaves"] = format_number(
         get_leave_value(leave_allocation, can_see_leave_data, "unused_leaves")
     )
-    employee_data["used_leaves"] = format_number(used_days if can_see_leave_data else "-")
+    
+    total_leaves = format_number(leave_allocation.get("total_leaves_allocated", 0) if leave_allocation else 0)
+    used_leaves = format_number(used_days)
+    
+    employee_data["used_leaves"] = used_leaves if can_see_leave_data else "-"
+    employee_data["remaining_leaves"] = (total_leaves - used_leaves) if can_see_leave_data else "-"
 
     return employee_data
+
+
+def map_leave_type(leave_type, half_day, leave_types, can_see_leave_data):
+    day_type_mapping = {
+        "ABSENCE": {"color": "#ca3f3f", "abbreviation": "A"},
+        "SATURDAY": {"color": "#636363", "abbreviation": "S"},
+        "SUNDAY": {"color": "#636363", "abbreviation": "S"},
+        "OFFICIAL HOLIDAY": {"color": "#78ca79", "abbreviation": "H"},
+    }
+    
+    day_type = LeaveType(
+        name="ABSENCE",
+        color=day_type_mapping["ABSENCE"]["color"],
+        abbreviation=day_type_mapping["ABSENCE"]["abbreviation"],
+        is_main_leave_type=0,
+        half_day=half_day
+    )
+    
+    if leave_type in day_type_mapping:
+        day_type.name = leave_type
+        day_type.color = day_type_mapping[day_type.name]["color"]
+        day_type.abbreviation = day_type_mapping[day_type.name]["abbreviation"]
+    
+    else:
+        if can_see_leave_data:
+            for leave in leave_types:
+                if leave.leave_type == leave_type:
+                    day_type.name = leave_type.upper()
+                    day_type.color = leave.color
+                    day_type.abbreviation = leave.abbreviation
+                    day_type.is_main_leave_type = leave.is_main_leave_type
+
+    return day_type
 
 
 def get_leave_value(leave_allocation, can_see_leave_data, leave_allocation_key):
@@ -319,22 +318,26 @@ def format_number(number):
     return number
 
 
+def check_if_department_leave_approver(department, employee, current_user):
+    is_approver = False
+    department_name = department if department != "all" else employee.department
+    department_doc = frappe.get_doc("Department", department_name)
+    
+    for leave_approver in department_doc.leave_approvers:
+        if leave_approver.approver == current_user:
+            is_approver = True
+
+    return is_approver
+
+        
 def get_departments():
     departments = frappe.get_all("Department", filters={"disabled": 0, "is_group": 0}, fields=["name"])
     return departments
 
 
-def map_restricted_leave(result_type):
-    if result_type == AttendenceCalendarDayType.CASUAL_LEAVE:
-        return AttendenceCalendarDayType.ABSENCE
-    elif result_type == AttendenceCalendarDayType.HALF_DAY_CASUAL_LEAVE:
-        return AttendenceCalendarDayType.HALF_DAY_ABSENCE
-    elif result_type == AttendenceCalendarDayType.SICK_LEAVE:
-        return AttendenceCalendarDayType.ABSENCE
-    elif result_type == AttendenceCalendarDayType.HALF_DAY_SICK_LEAVE:
-        return AttendenceCalendarDayType.HALF_DAY_ABSENCE
-    else:
-        return result_type
+def get_leave_types():
+    leave_types = frappe.get_all("Leave Type Child Table", filters={"parent": "Leave Calendar Settings"}, fields=["leave_type", "color", "abbreviation", "is_main_leave_type"])
+    return leave_types
 
 
 def check_if_logged_in():
@@ -349,6 +352,8 @@ def check_user_role(*roles):
     return any(role in user_roles for role in roles)
 
 
+def check_leave_approver(department):
+    frappe.get_doc("Department", )
 def get_current_employee(user):
     employees = frappe.get_all("Employee", filters={"user_id": user}, fields=["name", "department"])
     if employees:
@@ -358,17 +363,17 @@ def get_current_employee(user):
 
 
 def get_context(context):
-    	
     context.no_cache = 1
     context.logged_in = check_if_logged_in()
     is_admin = False
-    is_department_leave_approver = False
 
     if context.logged_in:
         is_admin = check_user_role("System Manager")
-        #TODO: check 
-        is_department_leave_approver = False
-
+    
+    selected_department = frappe.local.request.args.get("department", "all")
+    context.selected_department = selected_department
+      
+    context.leave_types = get_leave_types()
     context.departments = get_departments()
     current_year = datetime.now().year
     year = int(frappe.local.request.args.get("year", current_year))
@@ -379,9 +384,6 @@ def get_context(context):
     holidays = get_holidays_list(year)
     context.day_headers = format_days_to_dd_mm(days)
 
-    selected_department = frappe.local.request.args.get("department", "all")
-    context.selected_department = selected_department
-
     current_employee = get_current_employee(frappe.session.user)
 
     context.employee_data = map_employee_data(
@@ -389,7 +391,6 @@ def get_context(context):
         holidays=holidays,
         year=year,
         is_admin=is_admin,
-        is_department_leave_approver=is_department_leave_approver,
         selected_department=selected_department,
         current_employee=current_employee,
     )
