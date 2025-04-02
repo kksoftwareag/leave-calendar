@@ -64,7 +64,7 @@
                             <th scope="col">{{ _("Used Leaves") }}</th>
                             <th scope="col">{{ _("Remaining Leaves") }}</th>
                             <th scope="col">{{ _("New") }} {{ year }}</th>
-                            <th scope="col">{{ _("Rest") }} {{ year - 1 }}</th>
+                            <th scope="col">{{ _("Carry Forwarded") }} {{ year - 1 }}</th>
                             {% for header in day_headers %}
                                 {% if current_date == header %}
                                     <th scope="col" class="today" id="today">{{ header }}</th>

@@ -76,7 +76,7 @@ def get_employees():
     employees = frappe.get_all(
         "Employee",
         filters={"status": "Active"},
-        fields=["name", "employee_name", "holiday_list", "department"],
+        fields=["name", "employee_name", "holiday_list", "department", "leave_approver"],
     )
     return employees
 
@@ -321,11 +321,20 @@ def format_number(number):
 def check_if_department_leave_approver(department, employee, current_user):
     is_approver = False
     department_name = department if department != "all" else employee.department
-    department_doc = frappe.get_doc("Department", department_name)
+    department_doc = None
     
-    for leave_approver in department_doc.leave_approvers:
-        if leave_approver.approver == current_user:
-            is_approver = True
+    if department_name:
+        department_doc = frappe.get_doc("Department", department_name)
+    
+    if employee.leave_approver == current_user:
+        is_approver = True
+        return is_approver
+    
+    if department_doc:
+        for leave_approver in department_doc.leave_approvers:
+            if leave_approver.approver == current_user:
+                is_approver = True
+                break
 
     return is_approver
 
