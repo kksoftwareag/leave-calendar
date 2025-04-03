@@ -82,6 +82,10 @@ def get_employees():
 
 
 def get_leave_allocations(year):
+    main_leave_type = frappe.get_all("Leave Type Child Table", filters={"parent": "Leave Calendar Settings", "is_main_leave_type": 1}, fields=["leave_type"])
+    if not main_leave_type:
+        return []
+    
     start_date = f"{year}-01-01"
     end_date = f"{year}-12-31"
 
@@ -89,7 +93,7 @@ def get_leave_allocations(year):
         "Leave Allocation",
         filters={
             "docstatus": ["!=", 2],
-            "leave_type": "Casual Leave",
+            "leave_type": main_leave_type[0].leave_type,
             "from_date": ["between", [start_date, end_date]],
         },
         fields=["*"],
@@ -217,7 +221,7 @@ def map_single_employee_data(
 
     employee_data["employee_name"] = employee.employee_name
 
-    is_department_leave_approver = check_if_department_leave_approver(selected_department, employee, current_user)
+    is_department_leave_approver = check_if_leave_approver(selected_department, employee, current_user)
 
     can_see_leave_data = (
         is_admin
@@ -249,8 +253,8 @@ def map_single_employee_data(
             if day_type.is_main_leave_type:
                 used_days += 0.5 if day_type.half_day else 1
 
-
         employee_days.append({"type": day_type})
+        
     employee_data["days"] = employee_days
 
     employee_data["total_leaves_allocated"] = format_number(
@@ -318,7 +322,7 @@ def format_number(number):
     return number
 
 
-def check_if_department_leave_approver(department, employee, current_user):
+def check_if_leave_approver(department, employee, current_user):
     is_approver = False
     department_name = department if department != "all" else employee.department
     department_doc = None
@@ -361,8 +365,6 @@ def check_user_role(*roles):
     return any(role in user_roles for role in roles)
 
 
-def check_leave_approver(department):
-    frappe.get_doc("Department", )
 def get_current_employee(user):
     employees = frappe.get_all("Employee", filters={"user_id": user}, fields=["name", "department"])
     if employees:
