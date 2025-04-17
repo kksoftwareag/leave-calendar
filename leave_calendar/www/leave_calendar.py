@@ -1,5 +1,4 @@
 from datetime import date, datetime, timedelta
-from enum import Enum
 
 import frappe
 from frappe.core.doctype.navbar_settings.navbar_settings import get_app_logo
@@ -13,7 +12,7 @@ class LeaveType:
         self.is_main_leave_type = is_main_leave_type
         self.half_day = half_day
 
-    
+
 def get_days_for_year(year):
     start_date = datetime(year, 1, 1)
     end_date = datetime(year, 12, 31)
@@ -40,7 +39,9 @@ def get_holidays_list(year):
     )
 
     filtered_holidays = [
-        holiday for holiday in holidays if str(holiday["holiday_date"].year) == str(year)
+        holiday
+        for holiday in holidays
+        if str(holiday["holiday_date"].year) == str(year)
     ]
 
     result = {}
@@ -48,9 +49,9 @@ def get_holidays_list(year):
         holiday_type = get_type_of_day_for_holiday(holiday["description"])
         if holiday["parent"] not in result:
             result[holiday["parent"]] = {}
-        result[holiday["parent"]][
-            holiday["holiday_date"].strftime("%Y-%m-%d")
-        ] = holiday_type
+        result[holiday["parent"]][holiday["holiday_date"].strftime("%Y-%m-%d")] = (
+            holiday_type
+        )
 
     return result
 
@@ -76,16 +77,26 @@ def get_employees():
     employees = frappe.get_all(
         "Employee",
         filters={"status": "Active"},
-        fields=["name", "employee_name", "holiday_list", "department", "leave_approver"],
+        fields=[
+            "name",
+            "employee_name",
+            "holiday_list",
+            "department",
+            "leave_approver",
+        ],
     )
     return employees
 
 
 def get_leave_allocations(year):
-    main_leave_type = frappe.get_all("Leave Type Child Table", filters={"parent": "Leave Calendar Settings", "is_main_leave_type": 1}, fields=["leave_type"])
+    main_leave_type = frappe.get_all(
+        "Leave Type Child Table",
+        filters={"parent": "Leave Calendar Settings", "is_main_leave_type": 1},
+        fields=["leave_type"],
+    )
     if not main_leave_type:
         return []
-    
+
     start_date = f"{year}-01-01"
     end_date = f"{year}-12-31"
 
@@ -146,8 +157,8 @@ def map_employee_data(
     leave_allocations = get_leave_allocations(year)
     leave_applications = get_leave_applications(year)
 
-    current_user = frappe.session.user 
-    
+    current_user = frappe.session.user
+
     for employee in employees:
         employee_leave_allocation = next(
             (
@@ -198,7 +209,7 @@ def map_employee_data(
                 is_admin=is_admin,
                 current_employee=current_employee,
                 current_user=current_user,
-                )
+            )
         )
 
     return employee_data
@@ -221,7 +232,9 @@ def map_single_employee_data(
 
     employee_data["employee_name"] = employee.employee_name
 
-    is_department_leave_approver = check_if_leave_approver(selected_department, employee, current_user)
+    is_department_leave_approver = check_if_leave_approver(
+        selected_department, employee, current_user
+    )
 
     can_see_leave_data = (
         is_admin
@@ -233,28 +246,41 @@ def map_single_employee_data(
     leave_types = get_leave_types()
     for day in days:
         day_str = day.strftime("%Y-%m-%d")
-        
+
         day_type = LeaveType(
             name="DEFAULT",
             color="#636363",
             abbreviation="",
             is_main_leave_type=0,
-            half_day=0
+            half_day=0,
         )
 
-        if employee_holiday_list in holidays and day_str in holidays[employee_holiday_list]:
-            day_type = map_leave_type(leave_type=holidays[employee_holiday_list][day_str], half_day=0, leave_types=leave_types, can_see_leave_data=1)
-        
+        if (
+            employee_holiday_list in holidays
+            and day_str in holidays[employee_holiday_list]
+        ):
+            day_type = map_leave_type(
+                leave_type=holidays[employee_holiday_list][day_str],
+                half_day=0,
+                leave_types=leave_types,
+                can_see_leave_data=1,
+            )
+
         elif day_str in leave_applications:
             leave_type = leave_applications[day_str]["type"]
             half_day = leave_applications[day_str]["half_day"]
-            day_type = map_leave_type(leave_type=leave_type, half_day=half_day, leave_types=leave_types, can_see_leave_data=can_see_leave_data)
-            
+            day_type = map_leave_type(
+                leave_type=leave_type,
+                half_day=half_day,
+                leave_types=leave_types,
+                can_see_leave_data=can_see_leave_data,
+            )
+
             if day_type.is_main_leave_type:
                 used_days += 0.5 if day_type.half_day else 1
 
         employee_days.append({"type": day_type})
-        
+
     employee_data["days"] = employee_days
 
     employee_data["total_leaves_allocated"] = format_number(
@@ -266,12 +292,16 @@ def map_single_employee_data(
     employee_data["unused_leaves"] = format_number(
         get_leave_value(leave_allocation, can_see_leave_data, "unused_leaves")
     )
-    
-    total_leaves = format_number(leave_allocation.get("total_leaves_allocated", 0) if leave_allocation else 0)
+
+    total_leaves = format_number(
+        leave_allocation.get("total_leaves_allocated", 0) if leave_allocation else 0
+    )
     used_leaves = format_number(used_days)
-    
+
     employee_data["used_leaves"] = used_leaves if can_see_leave_data else "-"
-    employee_data["remaining_leaves"] = (total_leaves - used_leaves) if can_see_leave_data else "-"
+    employee_data["remaining_leaves"] = (
+        (total_leaves - used_leaves) if can_see_leave_data else "-"
+    )
 
     return employee_data
 
@@ -283,20 +313,20 @@ def map_leave_type(leave_type, half_day, leave_types, can_see_leave_data):
         "SUNDAY": {"color": "#636363", "abbreviation": "S"},
         "OFFICIAL HOLIDAY": {"color": "#78ca79", "abbreviation": "H"},
     }
-    
+
     day_type = LeaveType(
         name="ABSENCE",
         color=day_type_mapping["ABSENCE"]["color"],
         abbreviation=day_type_mapping["ABSENCE"]["abbreviation"],
         is_main_leave_type=0,
-        half_day=half_day
+        half_day=half_day,
     )
-    
+
     if leave_type in day_type_mapping:
         day_type.name = leave_type
         day_type.color = day_type_mapping[day_type.name]["color"]
         day_type.abbreviation = day_type_mapping[day_type.name]["abbreviation"]
-    
+
     else:
         if can_see_leave_data:
             for leave in leave_types:
@@ -326,14 +356,14 @@ def check_if_leave_approver(department, employee, current_user):
     is_approver = False
     department_name = department if department != "all" else employee.department
     department_doc = None
-    
+
     if department_name:
         department_doc = frappe.get_doc("Department", department_name)
-    
+
     if employee.leave_approver == current_user:
         is_approver = True
         return is_approver
-    
+
     if department_doc:
         for leave_approver in department_doc.leave_approvers:
             if leave_approver.approver == current_user:
@@ -342,14 +372,20 @@ def check_if_leave_approver(department, employee, current_user):
 
     return is_approver
 
-        
+
 def get_departments():
-    departments = frappe.get_all("Department", filters={"disabled": 0, "is_group": 0}, fields=["name"])
+    departments = frappe.get_all(
+        "Department", filters={"disabled": 0, "is_group": 0}, fields=["name"]
+    )
     return departments
 
 
 def get_leave_types():
-    leave_types = frappe.get_all("Leave Type Child Table", filters={"parent": "Leave Calendar Settings"}, fields=["leave_type", "color", "abbreviation", "is_main_leave_type"])
+    leave_types = frappe.get_all(
+        "Leave Type Child Table",
+        filters={"parent": "Leave Calendar Settings"},
+        fields=["leave_type", "color", "abbreviation", "is_main_leave_type"],
+    )
     return leave_types
 
 
@@ -366,7 +402,9 @@ def check_user_role(*roles):
 
 
 def get_current_employee(user):
-    employees = frappe.get_all("Employee", filters={"user_id": user}, fields=["name", "department"])
+    employees = frappe.get_all(
+        "Employee", filters={"user_id": user}, fields=["name", "department"]
+    )
     if employees:
         return employees[0]
     else:
@@ -380,10 +418,10 @@ def get_context(context):
 
     if context.logged_in:
         is_admin = check_user_role("System Manager")
-    
+
     selected_department = frappe.local.request.args.get("department", "all")
     context.selected_department = selected_department
-      
+
     context.leave_types = get_leave_types()
     context.departments = get_departments()
     current_year = datetime.now().year
@@ -407,5 +445,5 @@ def get_context(context):
     )
     context.logo = frappe.utils.get_url() + get_app_logo()
     context.favicon = frappe.utils.get_url() + "/assets/erpnext/images/erpnext-logo.svg"
-    
+
     return context

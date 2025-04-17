@@ -89,7 +89,7 @@
                                     {% else %}
                                         {% set background_css = "background-color: " ~ day.type.color %}
                                     {% endif %}
-                                
+
                                     <td>
                                         {% if day.type.name in ["DEFAULT", "SATURDAY", "SUNDAY"] %}
                                             <div class="vacation-day-field default">{{ day.type.abbreviation }}</div>

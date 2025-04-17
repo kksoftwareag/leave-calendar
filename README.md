@@ -53,4 +53,4 @@ The Leave Calendar is available in both **Dark Mode** and **Light Mode**, allowi
 
 ### License and Company
 
-This project is licensed under **GPLv3** and published from K&K Software AG.
+This project is licensed under **GPLv3** and published by K&K Software AG.
