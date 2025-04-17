@@ -4,7 +4,7 @@ name: CI
 on:
   push:
     branches:
-      - develop
+      - master
   pull_request:
 
 concurrency:
@@ -15,42 +15,34 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     strategy:
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
+
+
       fail-fast: false
     name: Server
 
     services:
-      redis-cache:
-        image: redis:alpine
-        ports:
-          - 13000:6379
-      redis-queue:
-        image: redis:alpine
-        ports:
-          - 11000:6379
       mariadb:
         image: mariadb:10.6
         env:
           MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
-        options: --health-cmd="mariadb-admin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
       - name: Clone
-        uses: actions/checkout@v3
-
-      - name: Find tests
-        run: |
-          echo "Finding tests"
-          grep -rn "def test" > /dev/null
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: ${{ matrix.python }}
+          cache: pip
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           check-latest: true
@@ -66,7 +58,7 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: 'echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT'
+        run: 'echo "::set-output name=dir::$(yarn cache dir)"'
 
       - uses: actions/cache@v4
         id: yarn-cache
@@ -76,31 +68,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Install MariaDB Client
-        run: sudo apt-get install mariadb-client-10.6
-
-      - name: Setup
-        run: |
-          pip install frappe-bench
-          bench init --skip-redis-config-generation --skip-assets --python "$(which python)" ~/frappe-bench
-          mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL character_set_server = 'utf8mb4'"
-          mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
-
       - name: Install
-        working-directory: /home/runner/frappe-bench
         run: |
-          bench get-app leave_calendar $GITHUB_WORKSPACE
-          bench setup requirements --dev
-          bench new-site --db-root-password root --admin-password admin test_site
-          bench --site test_site install-app leave_calendar
-          bench build
-        env:
-          CI: 'Yes'
+          bash ${GITHUB_WORKSPACE}/.github/helpers/setup.sh
 
       - name: Run Tests
         working-directory: /home/runner/frappe-bench
         run: |
-          bench --site test_site set-config allow_tests true
-          bench --site test_site run-tests --app leave_calendar
+          bench --site test set-config allow_tests true
+          bench --site test run-tests --app leave_calendar --coverage
         env:
           TYPE: server
