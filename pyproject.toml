@@ -1,8 +1,6 @@
 [project]
 name = "leave_calendar"
-authors = [
-    { name = "K&K Software AG", email = "erp@kk-software.de"}
-]
+authors = [{ name = "K&K Software AG", email = "erp@kk-software.de" }]
 description = "Leave Calendar"
 requires-python = ">=3.10"
 readme = "README.md"
@@ -14,6 +12,7 @@ dependencies = [
 [tool.bench.frappe-dependencies]
 frappe = ">=15.0.0"
 erpnext = ">=15.0.0"
+hrms = ">=15.0.0"
 
 [build-system]
 requires = ["flit_core >=3.4,<4"]
