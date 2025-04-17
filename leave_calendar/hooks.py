@@ -169,7 +169,7 @@ app_license = "GPLv3"
 # Testing
 # -------
 
-# before_tests = "leave_calendar.install.before_tests"
+before_tests = "leave_calendar.setup.utils.before_tests"
 
 # Overriding Methods
 # ------------------------------

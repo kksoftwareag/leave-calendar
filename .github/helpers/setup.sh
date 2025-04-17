@@ -39,6 +39,7 @@ sed -i 's/socketio:/# socketio:/g' Procfile
 sed -i 's/redis_socketio:/# redis_socketio:/g' Procfile
 
 bench get-app https://github.com/frappe/erpnext --branch version-15 --resolve-deps
+bench get-app https://github.com/frappe/hrms --branch version-15
 bench get-app --overwrite leave_calendar "${GITHUB_WORKSPACE}"
 bench --verbose setup requirements --dev
 
@@ -47,4 +48,5 @@ CI=Yes bench build --app frappe &
 bench --site test reinstall --yes
 
 bench --verbose --site test install-app erpnext
+bench --verbose --site test install-app hrms
 bench --verbose --site test install-app leave_calendar
