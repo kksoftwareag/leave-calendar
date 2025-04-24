@@ -243,6 +243,11 @@ def map_single_employee_data(
     )
 
     employee_holiday_list = employee.holiday_list
+    if not employee_holiday_list:
+        company_holiday_list = frappe.db.get_value("Company", employee.company, "default_holiday_list")
+        if company_holiday_list:
+            employee_holiday_list = company_holiday_list
+            
     leave_types = get_leave_types()
     for day in days:
         day_str = day.strftime("%Y-%m-%d")
