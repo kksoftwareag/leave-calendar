@@ -12,8 +12,8 @@
     <div class="portal-header">
         <a href="/app">
             <img src="{{ logo }}" alt="Logo" class="logo">
+            <input type="hidden" id="desk-theme" value="{% if frappe.session.user %}{{ frappe.db.get_value('User', frappe.session.user, 'desk_theme')[0] }}{% endif %}">
         </a>
-        <button id="theme-toggle" class="theme-toggle">Dark Mode 🌙</button>
     </div>
     <div class="container">
         <div class="view">
