@@ -1,4 +1,3 @@
-// Automatically scroll to today's column
 function today() {
   const currentDay = document.getElementById("today");
   if (currentDay) {
@@ -40,27 +39,23 @@ function updateDepartmentFilter() {
   window.location.href = url.toString();
 }
 
-function toggleTheme() {
-  document.body.classList.toggle("dark-mode");
-  const themeToggle = document.getElementById("theme-toggle");
+function applyThemeBasedOnUserSetting() {
+  const deskTheme = document.getElementById("desk-theme")?.value;
 
-  if (document.body.classList.contains("dark-mode")) {
-    themeToggle.innerText = "Light Mode ☀️";
-    localStorage.setItem("theme", "dark-mode");
-  } else {
-    themeToggle.innerText = "Dark Mode 🌙";
-    localStorage.removeItem("theme");
+  if (deskTheme === "D") {
+    document.body.classList.add("dark-mode");
+  } else if (deskTheme === "L") {
+    document.body.classList.remove("dark-mode");
+  } else if (deskTheme === "A") {
+    const prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (prefersDark) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
   }
 }
 
-const currentTheme = localStorage.getItem("theme");
-const themeToggleButton = document.getElementById("theme-toggle");
-
-if (currentTheme === "dark-mode") {
-  document.body.classList.add("dark-mode");
-  themeToggleButton.innerText = "Light Mode ☀️";
-} else {
-  themeToggleButton.innerText = "Dark Mode 🌙";
-}
-
-themeToggleButton.addEventListener("click", toggleTheme);
+applyThemeBasedOnUserSetting();

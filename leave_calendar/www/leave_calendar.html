@@ -13,7 +13,7 @@
         <a href="/app">
             <img src="{{ logo }}" alt="Logo" class="logo">
         </a>
-        <button id="theme-toggle" class="theme-toggle">Dark Mode 🌙</button>
+        <input type="hidden" id="desk-theme" value="{% if frappe.session.user %}{{ frappe.db.get_value('User', frappe.session.user, 'desk_theme')[0] }}{% else %}A{% endif %}">
     </div>
     <div class="container">
         <div class="view">
