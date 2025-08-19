@@ -263,24 +263,21 @@ def map_single_employee_data(
             is_main_leave_type=0,
             half_day=0,
         )
-        
+
         # check for correct holiday list
-        ledger_holiday_list = None 
-         
+        ledger_holiday_list = None
+
         if day_str in leave_applications:
             leave_application_name = leave_applications[day_str]["name"]
             ledger_holiday_list = frappe.db.get_value(
                 "Leave Ledger Entry",
                 {"transaction_name": leave_application_name},
-                "holiday_list"
+                "holiday_list",
             )
 
         holiday_list_to_use = ledger_holiday_list or employee_holiday_list
 
-        if (
-            holiday_list_to_use in holidays
-            and day_str in holidays[holiday_list_to_use]
-        ):
+        if holiday_list_to_use in holidays and day_str in holidays[holiday_list_to_use]:
             day_type = map_leave_type(
                 leave_type=holidays[holiday_list_to_use][day_str],
                 half_day=0,
@@ -302,7 +299,7 @@ def map_single_employee_data(
             ledger_holiday_list = frappe.db.get_value(
                 "Leave Ledger Entry",
                 {"transaction_name": leave_application_name},
-                "holiday_list"
+                "holiday_list",
             )
 
             if (
