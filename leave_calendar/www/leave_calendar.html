@@ -84,17 +84,13 @@
                                 <td class="text-center">{{ employee.new_leaves_allocated }}</td>
                                 <td class="text-center">{{ employee.unused_leaves }}</td>
                                 {% for day in employee.days %}
-                                    {% if day.type.half_day == 1 %}
-                                        {% set background_css = "background: linear-gradient(to bottom, " ~ day.type.color ~ " 50%, #ffffff 50%)" %}
-                                    {% else %}
-                                        {% set background_css = "background-color: " ~ day.type.color %}
-                                    {% endif %}
-
                                     <td>
                                         {% if day.type.name in ["DEFAULT", "SATURDAY", "SUNDAY"] %}
                                             <div class="vacation-day-field default">{{ day.type.abbreviation }}</div>
+                                        {% elif day.type.half_day == 1 %}
+                                            <div class="vacation-day-field half-day" style="--day-color: {{ day.type.color }}">{{ day.type.abbreviation }}</div>
                                         {% else %}
-                                            <div class="vacation-day-field" style="{{ background_css }}">{{ day.type.abbreviation }}</div>
+                                            <div class="vacation-day-field" style="background-color: {{ day.type.color }}">{{ day.type.abbreviation }}</div>
                                         {% endif %}
                                     </td>
                                 {% endfor %}
