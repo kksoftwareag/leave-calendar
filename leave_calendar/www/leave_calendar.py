@@ -125,6 +125,7 @@ def get_leave_applications(year):
             ["to_date", "between", [start_date, end_date]],
         ],
         fields=[
+            "name",
             "from_date",
             "to_date",
             "employee",
@@ -190,6 +191,7 @@ def map_employee_data(
             for day in get_days_between(from_date, to_date):
                 formatted_day = day.strftime("%Y-%m-%d")
                 employee_leave_application_array[formatted_day] = {
+                    "name": leave_application.name,
                     "type": leave_application.leave_type,
                     "half_day": (
                         leave_application.half_day == 1
@@ -262,26 +264,55 @@ def map_single_employee_data(
             half_day=0,
         )
 
-        if (
-            employee_holiday_list in holidays
-            and day_str in holidays[employee_holiday_list]
-        ):
+        # check for correct holiday list
+        ledger_holiday_list = None
+
+        if day_str in leave_applications:
+            leave_application_name = leave_applications[day_str]["name"]
+            ledger_holiday_list = frappe.db.get_value(
+                "Leave Ledger Entry",
+                {"transaction_name": leave_application_name},
+                "holiday_list",
+            )
+
+        holiday_list_to_use = ledger_holiday_list or employee_holiday_list
+
+        if holiday_list_to_use in holidays and day_str in holidays[holiday_list_to_use]:
             day_type = map_leave_type(
-                leave_type=holidays[employee_holiday_list][day_str],
+                leave_type=holidays[holiday_list_to_use][day_str],
                 half_day=0,
                 leave_types=leave_types,
                 can_see_leave_data=1,
             )
 
         elif day_str in leave_applications:
+            leave_application_name = leave_applications[day_str]["name"]
             leave_type = leave_applications[day_str]["type"]
             half_day = leave_applications[day_str]["half_day"]
+
             day_type = map_leave_type(
                 leave_type=leave_type,
                 half_day=half_day,
                 leave_types=leave_types,
                 can_see_leave_data=can_see_leave_data,
             )
+            ledger_holiday_list = frappe.db.get_value(
+                "Leave Ledger Entry",
+                {"transaction_name": leave_application_name},
+                "holiday_list",
+            )
+
+            if (
+                ledger_holiday_list
+                and ledger_holiday_list in holidays
+                and day_str in holidays[ledger_holiday_list]
+            ):
+                day_type = map_leave_type(
+                    leave_type=holidays[ledger_holiday_list][day_str],
+                    half_day=0,
+                    leave_types=leave_types,
+                    can_see_leave_data=1,
+                )
 
             if day_type.is_main_leave_type:
                 used_days += 0.5 if day_type.half_day else 1
