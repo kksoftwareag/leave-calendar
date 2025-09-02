@@ -370,7 +370,6 @@ body.dark-mode .vacation-day-field.half-day {
   background: linear-gradient(to bottom, var(--day-color) 50%, #636363 50%);
 }
 
-
 body.dark-mode .filter-container,
 body.dark-mode .year-filter,
 body.dark-mode .current-year-display {
