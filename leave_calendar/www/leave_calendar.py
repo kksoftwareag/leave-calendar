@@ -57,12 +57,24 @@ def get_holidays_list(year):
 
 
 def get_type_of_day_for_holiday(description: str):
-    description = description.upper()
-    if description in ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]:
+    desc = description.strip().upper()
+
+    mapping = {
+        "MONTAG": "MONDAY",
+        "DIENSTAG": "TUESDAY",
+        "MITTWOCH": "WEDNESDAY",
+        "DONNERSTAG": "THURSDAY",
+        "FREITAG": "FRIDAY",
+        "SAMSTAG": "SATURDAY",
+        "SONNTAG": "SUNDAY",
+    }
+    translated = mapping.get(desc, desc)
+
+    if translated in ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]:
         return "ABSENCE"
-    elif description == "SATURDAY":
+    elif translated == "SATURDAY":
         return "SATURDAY"
-    elif description == "SUNDAY":
+    elif translated == "SUNDAY":
         return "SUNDAY"
     else:
         return "OFFICIAL HOLIDAY"
